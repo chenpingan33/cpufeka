@@ -1,0 +1,27 @@
+name: Build KO
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare kernel source
+        run: |
+          git clone --depth=1 -b android15-6.6 https://android.googlesource.com/kernel/common /tmp/kernel
+          cd /tmp/kernel
+          make ARCH=arm64 defconfig
+          make ARCH=arm64 modules_prepare
+
+      - name: Build module
+        run: |
+          cd $GITHUB_WORKSPACE
+          make
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: cpufake_ksu
+          path: cpufake_ksu.ko
