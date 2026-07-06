@@ -21,7 +21,7 @@ jobs:
           cd $GITHUB_WORKSPACE
           make
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cpufake_ksu
           path: cpufake_ksu.ko
