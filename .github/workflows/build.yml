@@ -12,12 +12,20 @@ jobs:
       - name: Install cross compiler
         run: sudo apt-get install -y gcc-aarch64-linux-gnu
 
-      - name: Prepare GKI kernel source
+      - name: Download GKI kernel headers
         run: |
-          git clone --depth=1 -b android15-6.6 https://android.googlesource.com/kernel/common /tmp/kernel
-          cd /tmp/kernel
-          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- gki_defconfig
-          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules_prepare
+          # 使用你的内核构建 ID：ab13680582
+          # Google 官方 headers 地址格式
+          HEADERS_URL="https://ci.android.com/builds/submitted/ab13680582/kernel_aarch64/latest/kernel-headers.tar.gz"
+          wget -q "$HEADERS_URL" -O kernel-headers.tar.gz || {
+            echo "下载失败，尝试备用地址..."
+            # 备用：用分支名下载最新 headers
+            HEADERS_URL="https://ci.android.com/builds/latest/branches/aosp_kernel-common-android15-6.6/kernel_aarch64/latest/kernel-headers.tar.gz"
+            wget -q "$HEADERS_URL" -O kernel-headers.tar.gz
+          }
+          mkdir -p /tmp/kernel
+          tar -xzf kernel-headers.tar.gz -C /tmp/kernel
+          ls -la /tmp/kernel  # 确认文件存在
 
       - name: Build module
         run: |
