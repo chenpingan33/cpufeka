@@ -9,17 +9,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install cross compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+
       - name: Prepare kernel source
         run: |
           git clone --depth=1 -b android15-6.6 https://android.googlesource.com/kernel/common /tmp/kernel
           cd /tmp/kernel
-          make ARCH=arm64 defconfig
-          make ARCH=arm64 modules_prepare
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules_prepare
 
       - name: Build module
         run: |
           cd $GITHUB_WORKSPACE
-          make
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
 
       - uses: actions/upload-artifact@v4
         with:
